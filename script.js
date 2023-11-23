@@ -7,18 +7,15 @@ const all = document.querySelector("#all");
 const done = document.querySelector("#done");
 const open = document.querySelector("#open");
 const removeButton = document.querySelector("#removeButton");
-const itemsArr = JSON.parse(localStorage.getItem("items")) || []; //bei jedem reload wird mein programm von vorne geladen, wollen befülltes array behalten
-let count = 0; //für id-zahl
+let itemsArr = JSON.parse(localStorage.getItem("items")) || []; //bei jedem reload wird mein programm von vorne geladen, wollen befülltes array behalten
 let filter = "all";
 
 addToDoButton.addEventListener("click", addToDoItem);
 radioBtn.addEventListener("change", filterTodos);
 removeButton.addEventListener("click", removeToDoItem);
 renderToDos();
-removeToDoItem();
 
 function addToDoItem(event) {
-  count++; //für id-zahl
   event.preventDefault(); //nötig, damit die seite beim drücken des buttons nicht neu lädt
   if (checkDuplicates()) {
     //checkDuplicates() ist gleich checkDuplicates() === true
@@ -26,8 +23,16 @@ function addToDoItem(event) {
     itemsArr.push({
       itemText: newToDo.value,
       completed: false,
-      id: "id_" + count,
+      id: createID("id_"),
     });
+  }
+
+  function createID(text) {
+    return (
+      text.replaceAll(" ", "").toLowerCase() +
+      Math.floor(Math.random() * 100000)
+      //function gibt string zurück, in dem alle leerzeichen entfernt werden, alles klein geschrieben wird und eine random große zahl dahintergenommen wird
+    );
   }
 
   newToDo.value = ""; //todo aus dem input-feld löschen, placeholder wieder sichtbar
@@ -51,7 +56,6 @@ function renderToDos() {
     toDoList.appendChild(toDoItem);
 
     //abgehakte todos auch beim rendern durchgestrichen lassen
-    //NOCH NICHT FERTIG !!!!!
     if (filter === "done") {
       toDoItem.style = "text-decoration: line-through;";
     } else {
@@ -108,15 +112,10 @@ function filterTodos(event) {
 }
 
 //NOCH NICHT FERTIG
-function removeToDoItem(event) {
-  //event ist hier mein button wegen dem eventListener => event.target wäre also nicht die checkbox des todos
-  //event.preventDefault();
-  for (let i = 0; i < itemsArr.length; i++) {
-    if (itemsArr[i][1] === done) {
-      let indexToDelete = itemsArr[i];
-      itemsArr.splice(indexToDelete, 1);
-    }
-  }
-  localStorage.setItem("items", JSON.stringify(itemsArr)); //nötig, weil inhalt verändert wird
-  console.log("Torben");
+function removeToDoItem() {
+  itemsArr = itemsArr.filter(function (todo) {
+    return !todo.completed;
+  });
+  renderToDos();
+  // localStorage.setItem("items", JSON.stringify(itemsArr)); //nötig, weil inhalt verändert wird
 }
